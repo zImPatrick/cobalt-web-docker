@@ -1,0 +1,28 @@
+services:
+  cobalt-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      additional_contexts:
+        cobalt-src: https://github.com/imputnet/cobalt.git
+
+      # these are at build time - remember they're from the perspective of the frontend
+      # (e.g. "what would I put in my browser to get to the frontend/API")
+      args:
+        WEB_HOST: "http://localhost:3000/"
+        WEB_DEFAULT_API: "http://localhost:9000/"
+
+    # this can be changed
+    ports:
+      - 3000:3000/tcp
+
+  # example for testing
+  cobalt-api:
+    image: ghcr.io/imputnet/cobalt:10
+    restart: unless-stopped
+
+    ports:
+      - 9000:9000/tcp
+
+    environment:
+      API_URL: "http://localhost:9000/"
