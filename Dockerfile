@@ -11,6 +11,11 @@ WORKDIR /app
 COPY --from=cobalt-src . .
 
 RUN corepack enable
+RUN apk add --no-cache git
+
+# this totally fucks up the git repo but it breaks cobalt otherwise
+# https://github.com/imputnet/cobalt/blob/4b9644ebdfbfe7bc6f7ec2d476692e3619cb59bd/packages/version-info/index.js#L30
+RUN echo "0000000000000000000000000000000000000000 $(git rev-parse HEAD)" > .git/logs/HEAD
 
 # don't need to install anything other than the web deps
 # (but we need the root folder for the workspace)
@@ -22,5 +27,8 @@ FROM busybox:1.37 AS web
 WORKDIR /app
 COPY --from=build /app/web/build .
 
+COPY ./fixup.sh .
+RUN chmod +x ./fixup.sh && ./fixup.sh && rm ./fixup.sh
+
 EXPOSE 3000
-CMD ["busybox", "httpd", "-f", "-v", "-p", "3000"]
+CMD ["busybox", "httpd", "-f", "-p", "3000"]
