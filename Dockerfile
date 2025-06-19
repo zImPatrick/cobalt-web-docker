@@ -30,5 +30,7 @@ COPY --from=build /app/web/build .
 COPY ./fixup.sh .
 RUN chmod +x ./fixup.sh && ./fixup.sh && rm ./fixup.sh
 
+COPY ./httpd.conf /etc/httpd.conf
+
 EXPOSE 3000
 CMD ["busybox", "httpd", "-f", "-p", "3000"]
